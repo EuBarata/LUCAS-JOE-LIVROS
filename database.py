@@ -1,10 +1,11 @@
 import sqlite3 as sq
 import pandas as pd
+
 def conectar():
     conn = sq.Connection("livros.db")
     return conn
 
-def criar_livro():
+def criar_livro(nome_banco ="livros.db"):
     conn = conectar()
     cursor = conn.cursor()
     cursor.execute(""" CREATE TABLE IF NOT EXISTS livros (
@@ -19,27 +20,27 @@ def criar_livro():
     
     """)
 
-    conn.commit()
-    conn.close()
+    conn.commit(nome_banco)
+    conn.close(nome_banco)
 
-def cadastrar_livro(titulo,autor,ano_pulicacao):
+def cadastrar_livro(titulo,autor,ano_publicacao):
 
-    if ano_pulicacao < 2026:
+    if ano_publicacao < 2026:
         conn = conectar()
         cursor = conn.cursor()
 
-        cursor.execute(" INSERT INTO livros VALUES (?,?,?,'status')", (titulo,autor,ano_pulicacao))
+        cursor.execute(" INSERT INTO livros VALUES (?,?,?,'status')", (titulo,autor,ano_publicacao))
 
         conn.commit()
         conn.close()    
         
-        return "O livro é de 2026 e não pode ser cadastrado!!"   
+    return "O livro é de 2026 e não pode ser cadastrado!!"   
 
 def listar_livros(id):
     conn = conectar()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT * FROM livros where id = ?", id)
+    cursor.execute("SELECT * FROM livros where id = ?", (id,))
 
     resultado = cursor.fetchall()
 
@@ -52,7 +53,11 @@ def atualizar_livro(status,id):
     conn = conectar()
     cursor = conn.cursor()
 
-    cursor.execute(" UPDATE livros SET status = ? where id = ? ",status,id)
+    cursor.execute(" UPDATE livros SET status = ? where id = ? ",(status,id))
+
+    conn.commit()
+    conn.close()
+
 
 
 def deletar_livros(id,status_livro):
@@ -61,7 +66,7 @@ def deletar_livros(id,status_livro):
         conn = conectar()
         cursor = conn.cursor()
 
-        cursor.execute(" DELETE FROM livros where id = ?",id)
+        cursor.execute(" DELETE FROM livros where id = ?",(id))
 
         return cursor.rowcount
 

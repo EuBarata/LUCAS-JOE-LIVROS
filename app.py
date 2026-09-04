@@ -2,10 +2,10 @@ import database as db
 import streamlit as st
 
 db.criar_livro()
-db.listar_livros
-db.cadastrar_livro()
-db.atualizar_livro()
-db.deletar_livros()
+
+
+
+
 
 
 st.markdown("""
@@ -13,34 +13,34 @@ st.markdown("""
           
     <style>
 
-.app img {
+.App  {
         
-                background-image: url("https://tse4.mm.bing.net/th/id/OIP.AlcQ8fUa0m-7kTzihpy3IQHaEK?r=0&rs=1&pid=ImgDetMain&o=7&rm=3");
+                background-image: url(https://www.fatosdesconhecidos.com.br/wp-content/uploads/2018/01/Dean-lendo-800x418.png);
                 background-position: center;
                 background-size: cover;
                 background-repeat: no-repeat;
+                padding: 55px;
+                text-align: center;
 }
 
-.app h1 {
+.App h1 {
 
                 font-size: 40px;
-                margim-bottom: 10px;
+                margin-bottom: 10px;
                 color: #ff0000;
 }
 
-.app p {        
-                font-size: 10px;
-                color: #888888;
-                
-
+.App p {        
+                font-size: 15px;
+                color: #ffffff;
 }
             
     </style>
     
-            <div class="App">
-                <h1> "Bem-vindo ao Livro_BOOK" </h1>
-                <p>  "A melhor loja de livros do BRASIL!!!" </P>
-            </div>
+<div class="App">
+    <h1> Bem-vindo ao Livro_BOOK </h1>
+    <p>  A melhor loja de livros do BRASIL!!! </p>
+</div>
                     """, unsafe_allow_html=True)
 
 
@@ -54,14 +54,65 @@ with abas[0]:
 
         titulo = st.text_input("Insira o nome do livro")
         autor  = st.text_input(" Insira o nome do autor ")
-        ano_pulicacao = st.number_input(" Inisra o Ano da publicação ")
+        ano_pulicacao = st.number_input(" Insira o Ano da publicação ",step=1.00)
 
         btn = st.form_submit_button("Cadastrar")
         
         if btn:
-               st.success("O livro foi cadastrado com sucesso")
+                db.cadastrar_livro(titulo,autor,ano_pulicacao)
+                st.success("O livro foi cadastrado com sucesso")
 
 with abas[1]:
+
+    st.write("Vizualizar Livros")
+
+    with st.form("Vizualizar Livros"):
+    
+            btn = st.form_submit_button("Livros cadastrados")
+            
+            if btn:
+                livros = db.listar_livros(id)
+
+                for livro in livros:
+                    st.success(livro)
+
+with abas[2]:
+
+    st.write("Atualizar Livros")
+
+    with st.form("Atualizar um Livro"):
+
+            status = st.radio ("Escolha o Status",["Lido","Não Lido","Lendo"])
+
+            btn = st.form_submit_button("Atualizar")
+            
+            if btn:
+                livros = db.atualizar_livro(status,id)
+                st.success("Livro atualizado com sucesso!")
+
+with abas[3]:
+
+    st.write("Deletar Livros")
+
+    with st.form("Deletar um Livro"):
+
+
+            status_livro = st.radio ("Escolha o Status",["Lido","Não Lido","Lendo"])  
+
+            btn = st.form_submit_button("Deletar")
+            
+            if btn:
+                resultado = db.deletar_livros(id, status)
+
+                if resultado:
+                    st.success("Livro deletado com sucesso!")
+                else:
+                    st.error("Livro não encontrado.")
+
+    
+
+
+
      
 
         
