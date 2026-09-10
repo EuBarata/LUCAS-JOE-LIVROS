@@ -1,12 +1,12 @@
 import sqlite3 as sq
 import pandas as pd
 
-def conectar():
-    conn = sq.Connection("livros.db")
+def conectar(nome_banco = "livros.db"):
+    conn = sq.Connection(nome_banco)
     return conn
 
 def criar_livro(nome_banco ="livros.db"):
-    conn = conectar()
+    conn = conectar(nome_banco)
     cursor = conn.cursor()
     cursor.execute(""" CREATE TABLE IF NOT EXISTS livros (
         
@@ -20,24 +20,30 @@ def criar_livro(nome_banco ="livros.db"):
     
     """)
 
-    conn.commit(nome_banco)
-    conn.close(nome_banco)
+    conn.commit()
+    conn.close()
 
-def cadastrar_livro(titulo,autor,ano_publicacao):
+def cadastrar_livro(titulo,autor,ano_publicacao, nome_banco ="livros.db"):
+
 
     if ano_publicacao < 2026:
-        conn = conectar()
-        cursor = conn.cursor()
+        return False, "O livro é de 2026 e não pode ser cadastrado!!"
+    
+    conn = conectar(nome_banco)
+    cursor = conn.cursor()
 
-        cursor.execute(" INSERT INTO livros VALUES (?,?,?,'status')", (titulo,autor,ano_publicacao))
+    cursor.execute(" INSERT INTO livros (titulo,autor,ano_publicacao,status) VALUES (?,?,?, 'Lendo')", (titulo,autor,ano_publicacao))
 
-        conn.commit()
-        conn.close()    
+    conn.commit()
+    conn.close()    
+
+
+    return True, "Livro cadastrado com sucesso!"
         
-    return "O livro é de 2026 e não pode ser cadastrado!!"   
+       
 
-def listar_livros(id):
-    conn = conectar()
+def listar_livros(id, nome_banco = "livros.db"):
+    conn = conectar(nome_banco)
     cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM livros where id = ?", (id,))
@@ -47,10 +53,12 @@ def listar_livros(id):
     columns = ["id","titulo","autor","ano da publicação","status"]
 
     df = pd.DataFrame(resultado,columns)
+
+    cursor.close()
     return df
-    
-def atualizar_livro(status,id):
-    conn = conectar()
+
+def atualizar_livro(status,id, nome_banco = "livros.db"):
+    conn = conectar(nome_banco)
     cursor = conn.cursor()
 
     cursor.execute(" UPDATE livros SET status = ? where id = ? ",(status,id))
@@ -60,20 +68,30 @@ def atualizar_livro(status,id):
 
 
 
-def deletar_livros(id,status_livro):
+def deletar_livros(id,status_livro, nome_banco = "livros.db"):
     if status_livro == "Lido" or status_livro == "Não Lido":
+        return "O livro só pode ser deletado se seu status for lido/não lido"
+    
+    conn = conectar(nome_banco)
+    cursor = conn.cursor()
 
-        conn = conectar()
-        cursor = conn.cursor()
+    cursor.execute(" DELETE FROM livros where id = ?",(id))
 
-        cursor.execute(" DELETE FROM livros where id = ?",(id))
+    conn.commit()
+    conn.close()
 
-        return cursor.rowcount
+    return cursor.rowcount
+
+   
+
+
+       
+    
 
         
-    return "O livro só pode ser deletado se seu status for lido/não lido"
-    
-        
-    
+   
+
+
+
     
     
